@@ -1,0 +1,217 @@
+{
+ "seed": 5150,
+ "winner": "a",
+ "calls": 22,
+ "via": {
+  "decision": 22,
+  "text-fallback": 0,
+  "random": 0,
+  "forced": 2
+ },
+ "trace": [
+  {
+   "turn": 1,
+   "a": {
+    "move": "charge",
+    "confidence": 0.3854906633244666,
+    "via": "decision"
+   },
+   "b": {
+    "move": "strafe",
+    "confidence": 0.43884256630981877,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper charges in. Range 38.",
+    "Kestrel strafes and lines up a shot."
+   ]
+  },
+  {
+   "turn": 2,
+   "a": {
+    "move": "charge",
+    "confidence": 0.3621167105628713,
+    "via": "decision"
+   },
+   "b": {
+    "move": "retreat",
+    "confidence": 0.35330562943202026,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper charges in. Range 14.",
+    "Kestrel pulls away. Range 28."
+   ]
+  },
+  {
+   "turn": 3,
+   "a": {
+    "move": "fire",
+    "confidence": 0.3571532610329886,
+    "via": "decision"
+   },
+   "b": {
+    "move": "retreat",
+    "confidence": 0.22214914556068932,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper fires at 78% and hits for 32.",
+    "Kestrel pulls away. Range 42."
+   ]
+  },
+  {
+   "turn": 4,
+   "a": {
+    "move": "charge",
+    "confidence": 0.36716370278435917,
+    "via": "decision"
+   },
+   "b": {
+    "move": "strafe",
+    "confidence": 0.16255657438792037,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper charges in. Range 19.",
+    "Kestrel strafes and lines up a shot."
+   ]
+  },
+  {
+   "turn": 5,
+   "a": {
+    "move": "fire",
+    "confidence": 0.5305062467546664,
+    "via": "decision"
+   },
+   "b": {
+    "move": "strafe",
+    "confidence": 0.14553899796449477,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper fires at 84% and hits for 34.",
+    "Kestrel strafes and lines up a shot."
+   ]
+  },
+  {
+   "turn": 6,
+   "a": {
+    "move": "fire",
+    "confidence": 0.40572515791857033,
+    "via": "decision"
+   },
+   "b": {
+    "move": "retreat",
+    "confidence": 0.18735692512935137,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper fires at 84% and hits for 23.",
+    "Kestrel pulls away. Range 33."
+   ]
+  },
+  {
+   "turn": 7,
+   "a": {
+    "move": "retreat",
+    "confidence": null,
+    "via": "forced"
+   },
+   "b": {
+    "move": "retreat",
+    "confidence": 0.1653312458706795,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper pulls away. Range 47.",
+    "Kestrel pulls away. Range 61."
+   ]
+  },
+  {
+   "turn": 8,
+   "a": {
+    "move": "charge",
+    "confidence": 0.7228750135705595,
+    "via": "decision"
+   },
+   "b": {
+    "move": "strafe",
+    "confidence": 0.1916566980353872,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper charges in. Range 34.",
+    "Kestrel strafes and lines up a shot."
+   ]
+  },
+  {
+   "turn": 9,
+   "a": {
+    "move": "charge",
+    "confidence": 0.7137751520566785,
+    "via": "decision"
+   },
+   "b": {
+    "move": "retreat",
+    "confidence": 0.0971675458124796,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper charges in. Range 10.",
+    "Kestrel pulls away. Range 24."
+   ]
+  },
+  {
+   "turn": 10,
+   "a": {
+    "move": "retreat",
+    "confidence": null,
+    "via": "forced"
+   },
+   "b": {
+    "move": "fire",
+    "confidence": 0.17784388201079904,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper pulls away. Range 38.",
+    "Kestrel fires at 97% and hits for 29."
+   ]
+  },
+  {
+   "turn": 11,
+   "a": {
+    "move": "charge",
+    "confidence": 0.6459256955804148,
+    "via": "decision"
+   },
+   "b": {
+    "move": "feint",
+    "confidence": 0.18353003482940589,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper charges in. Range 13.",
+    "Kestrel feints. Vesper bites on it."
+   ]
+  },
+  {
+   "turn": 12,
+   "a": {
+    "move": "charge",
+    "confidence": 0.6086709278500377,
+    "via": "decision"
+   },
+   "b": {
+    "move": "fire",
+    "confidence": 0.23972636278572945,
+    "via": "decision"
+   },
+   "events": [
+    "Vesper charges in. Range 0.",
+    "Kestrel fires at 95% and hits for 23."
+   ]
+  }
+ ]
+}

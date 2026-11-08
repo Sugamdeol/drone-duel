@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drone Duel - two decision models dogfight</title>
+<meta name="description" content="Two AI decision models fly combat drones against each other. Each turn they answer a typed choice question with a move and a probability. You watch, and your own Pollen pays for the moves.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128760;</text></svg>">
+<style>
+  :root {
+    --ink: #0c1016;
+    --panel: #131a24;
+    --panel2: #172030;
+    --line: #253145;
+    --text: #e6ecf6;
+    --dim: #93a1b8;
+    --a: #5ad1ff;
+    --b: #ff8f6b;
+    --good: #7bd88f;
+    --bad: #ff7a7a;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(1100px 560px at 15% -10%, #16202e 0%, var(--ink) 60%) no-repeat, var(--ink);
+    color: var(--text);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  a { color: #9ecbff; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 26px 20px 60px; }
+
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+  h1 { font-size: 30px; line-height: 1.1; margin: 0 0 6px; letter-spacing: -0.02em; }
+  h1 .dot { color: var(--a); }
+  .tag { color: var(--dim); margin: 0; max-width: 64ch; }
+  .who { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--dim); flex-wrap: wrap; }
+  .who b { color: var(--text); font-weight: 600; }
+
+  .btn {
+    border: 1px solid var(--line); background: var(--panel2); color: var(--text);
+    padding: 9px 15px; border-radius: 9px; font: inherit; font-size: 14px; cursor: pointer;
+    transition: border-color .15s, background .15s, transform .05s;
+  }
+  .btn:hover:not(:disabled) { border-color: #3a4b66; }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.primary { background: #1d3550; border-color: #2c4f74; }
+  .btn.primary:hover:not(:disabled) { background: #24415f; }
+  .btn.ghost { background: transparent; }
+
+  .status { min-height: 22px; margin: 14px 0 4px; font-size: 14px; color: var(--dim); }
+  .status.ok { color: var(--good); }
+  .status.err { color: var(--bad); }
+
+  .keyrow { display: flex; gap: 8px; margin: 6px 0 0; flex-wrap: wrap; }
+  .keyrow input {
+    flex: 1 1 240px; min-width: 0; background: #0e1520; color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; font: inherit; font-size: 14px;
+  }
+
+  .arena {
+    margin-top: 18px; padding: 18px; border: 1px solid var(--line); border-radius: 14px;
+    background: linear-gradient(180deg, #121a26 0%, #0f1620 100%);
+  }
+  .topline { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--dim); }
+  .topline b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  .drones { display: grid; grid-template-columns: 1fr 150px 1fr; gap: 14px; align-items: start; margin-top: 14px; }
+  @media (max-width: 720px) { .drones { grid-template-columns: 1fr; } }
+
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: 13px; background: var(--panel); }
+  .card.a { border-top: 3px solid var(--a); }
+  .card.b { border-top: 3px solid var(--b); }
+  .card.dead { opacity: .55; }
+  .card h2 { margin: 0 0 2px; font-size: 17px; }
+  .card .role { color: var(--dim); font-size: 12px; margin: 0 0 10px; }
+  .row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); margin: 6px 0; }
+  .row .lbl { width: 52px; flex: none; text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+  .row .num { width: 62px; flex: none; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+  .bar { flex: 1; height: 7px; background: #0c121b; border-radius: 99px; overflow: hidden; }
+  .bar .fill { height: 100%; background: var(--good); border-radius: 99px; transition: width .25s; }
+  .card.a .hull .fill { background: var(--a); }
+  .card.b .hull .fill { background: var(--b); }
+  .card .last { font-family: var(--mono); font-size: 12px; color: var(--text); text-transform: uppercase; }
+  .card .flag { display: none; font-size: 11px; color: var(--bad); margin-top: 6px; }
+  .card.shaken .flag.shaken { display: block; }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; min-height: 22px; }
+  .chip {
+    font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 99px;
+    border: 1px solid var(--line); color: var(--dim); background: #0e1520;
+  }
+  .chip.bad { border-color: #5a2b2b; color: #ffb3b3; }
+
+  .middle { text-align: center; padding-top: 6px; }
+  .middle .range { font-family: var(--mono); font-size: 26px; font-variant-numeric: tabular-nums; }
+  .middle .cap { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+  .middle .bar { margin: 8px 0 14px; height: 6px; }
+  .middle .bar .fill { background: linear-gradient(90deg, var(--a), var(--b)); }
+
+  .controls { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+  .verdict { margin-left: auto; font-size: 15px; font-weight: 600; color: var(--dim); }
+  .verdict.done { color: var(--good); }
+
+  .logbox { margin-top: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+  .logbox h3 { margin: 0; padding: 11px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--dim); border-bottom: 1px solid var(--line); }
+  #log { list-style: none; margin: 0; padding: 8px 14px 14px; max-height: 260px; overflow-y: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; }
+  #log li { color: #c7d3e6; }
+  #log li:last-child { color: var(--text); }
+
+  footer { margin-top: 26px; color: var(--dim); font-size: 13px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  footer img { height: 26px; display: block; }
+  .muted { color: var(--dim); font-size: 13px; }
+  .note { margin-top: 10px; font-size: 12.5px; color: var(--dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Drone Duel<span class="dot">.</span></h1>
+      <p class="tag">Two AI decision models fly combat drones against each other. Every turn each one answers a typed choice question with a move and a probability. Neither model sees the other's answer until both have committed.</p>
+    </div>
+    <div class="who">
+      <span id="who">Not signed in</span>
+      <button class="btn" id="signBtn" type="button">Sign in with Pollen</button>
+      <button class="btn ghost" id="keyBtn" type="button">Use a key</button>
+    </div>
+  </header>
+
+  <div class="keyrow" id="keyRow" hidden>
+    <input id="keyInput" type="password" autocomplete="off" placeholder="Paste your Pollinations secret key (sk_...)">
+    <button class="btn" id="keySave" type="button">Use this key</button>
+  </div>
+
+  <p class="status" id="status"></p>
+
+  <section class="arena">
+    <div class="topline">
+      <span>Turn <b id="turnNum">1 / 12</b></span>
+      <span>Model calls billed to you: <b id="cost">0</b></span>
+      <span>Decision model: <b>microsoft-decision-1</b></span>
+    </div>
+
+    <div class="drones">
+      <div class="card a" id="drone-a">
+        <h2>Vesper</h2>
+        <p class="role">drone A, flown by a decision model</p>
+        <div class="row hull"><span class="lbl">Hull</span><span class="bar"><span class="fill"></span></span><span class="num">100 / 100</span></div>
+        <div class="row energy"><span class="lbl">Energy</span><span class="num">6 / 10</span></div>
+        <div class="row ammo"><span class="lbl">Missiles</span><span class="num">3 / 5</span></div>
+        <div class="row aim"><span class="lbl">Aim</span><span class="num">0</span></div>
+        <div class="row"><span class="lbl">Chose</span><span class="last">waiting</span></div>
+        <div class="flag shaken">Faked out: next shot is 25% less accurate.</div>
+        <div class="chips" id="moves-a"></div>
+      </div>
+
+      <div class="middle">
+        <div class="cap">Range</div>
+        <div class="range" id="rangeNum">60</div>
+        <div class="bar" id="rangeBar"><div class="fill"></div></div>
+        <div class="cap">closer is deadlier</div>
+      </div>
+
+      <div class="card b" id="drone-b">
+        <h2>Kestrel</h2>
+        <p class="role">drone B, flown by a decision model</p>
+        <div class="row hull"><span class="lbl">Hull</span><span class="bar"><span class="fill"></span></span><span class="num">100 / 100</span></div>
+        <div class="row energy"><span class="lbl">Energy</span><span class="num">6 / 10</span></div>
+        <div class="row ammo"><span class="lbl">Missiles</span><span class="num">3 / 5</span></div>
+        <div class="row aim"><span class="lbl">Aim</span><span class="num">0</span></div>
+        <div class="row"><span class="lbl">Chose</span><span class="last">waiting</span></div>
+        <div class="flag shaken">Faked out: next shot is 25% less accurate.</div>
+        <div class="chips" id="moves-b"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn primary" id="stepBtn" type="button">Play one turn</button>
+      <button class="btn" id="autoBtn" type="button">Run the duel</button>
+      <button class="btn ghost" id="resetBtn" type="button">New duel</button>
+      <span class="verdict" id="verdict"></span>
+    </div>
+  </section>
+
+  <div class="logbox">
+    <h3>Battle log</h3>
+    <ul id="log"></ul>
+  </div>
+
+  <p class="note">Each turn is two calls to <code>gen.pollinations.ai</code>: the state of the arena and the legal moves go out as one typed decision question, and the choice plus its probability come back. A plain text model stands in when the decision model returns nothing usable, and a legal random move stands in when both fail, so a duel always finishes. Nothing is simulated in advance: the page holds no hidden dice that the models did not touch.</p>
+
+  <footer>
+    <a href="https://pollinations.ai/?ref=badge">
+      <img src="https://raw.githubusercontent.com/pollinations/pollinations/main/packages/ui/src/brand/badge-made-with.svg" alt="Made with pollinations.ai">
+    </a>
+    <span class="muted">Built for Pollinations quest #19176. Your own Pollen pays for every move.</span>
+  </footer>
+</div>
+
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
